@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:ppe_rift_test/screens/home_screen.dart';
 import 'package:http/http.dart' as http;
@@ -6,22 +8,29 @@ import 'package:gtfs_realtime_bindings/gtfs_realtime_bindings.dart';
 
 
 
-void main() async {
-
-  final url = Uri.parse('https://proxy.transport.data.gouv.fr/resource/ilevia-lille-gtfs-rt');
-  final response = await http.get(url);
-
-  if (response.statusCode == 200) {
-    final feedMessage = FeedMessage.fromBuffer(response.bodyBytes);
-
-    print('Number of entities: ${feedMessage.entity.length}.');
-  } else {
-    print('Request failed with status: ${response.statusCode}.');
-  }
-
+void main()  {
 
   runApp(const MyApp());
 }
+
+Future<String> getData() async {
+  final url = Uri.parse('https://proxy.transport.data.gouv.fr/resource/ilevia-lille-gtfs-rt');
+  final response = await http.get(url);
+
+    final feedMessage = FeedMessage.fromBuffer(response.bodyBytes);
+
+    print(feedMessage.entity.toString());
+
+  return feedMessage.entity.toString();
+
+}
+
+String getDataString(){
+  String dataString = getData() as String;
+  print (dataString);
+  return dataString;
+}
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -35,7 +44,7 @@ class MyApp extends StatelessWidget {
       theme : ThemeData(
         primarySwatch: Colors.deepOrange
       ),
-      home: const HomeScreen (),
+      home: MyHomePage (),
     );
   }
 }
