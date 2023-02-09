@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ppe_rift_test/main.dart';
-
-String data = getDataString();
 
 
 class MyHomePage extends StatefulWidget {
@@ -11,23 +11,76 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 class _MyHomePageState extends State<MyHomePage> {
-  @override
-  void initState() {
-    super.initState();
-    Timer(Duration(seconds: 3),
-            ()=>Navigator.pushReplacement(context,
-            MaterialPageRoute(builder:
-                (context) =>
-                HomeScreen()
-            )
-        )
-    );
+  List<List<dynamic>> _data = [];
+
+
+  // This function is triggered when the floating button is pressed
+  void _loadCSV() async {
+    final _rawData = await rootBundle.loadString("assets/routesTriees.csv");
+    List<List<dynamic>> _listData =
+    const CsvToListConverter().convert(_rawData);
+    setState(() {
+      _data = _listData;
+    });
   }
+
+  void _search(String enteredKeyword) async {
+    final _rawData = await rootBundle.loadString("assets/routesTriees.csv");
+    List<List<dynamic>> _listData =
+    const CsvToListConverter().convert(_rawData);
+    if (enteredKeyword.isEmpty) {
+      // if the search field is empty or only contains white-space, we'll display all users
+      _data = _listData;
+    } else {
+      _data = _listData
+          .where((_data) =>
+          _data[1].toString().toLowerCase().contains(enteredKeyword.toLowerCase()))
+          .toList();
+      // we use the toLowerCase() method to make it case-insensitive
+    }
+    setState(() {
+      _data = _listData;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-        color: Colors.white,
-        child:FlutterLogo(size:MediaQuery.of(context).size.height),
+    _loadCSV();
+    String search = "";
+    return Scaffold(
+      appBar: AppBar(
+        title: const Center (child : Text ('Bip Boup')),
+      ),
+
+      bottomSheet : TextField(
+        onChanged: (value) => search = value,
+        decoration: const InputDecoration(
+            labelText: 'Chercher une ligne',
+            suffixIcon: Icon(Icons.search)),
+      ),
+
+      // Display the contents from the CSV file
+      body:
+      ListView.builder(
+        itemCount: _data.length,
+        itemBuilder: (_, index) {
+          return Card(
+            margin: const EdgeInsets.all(3),
+            color: index == 0 ? Colors.white54 : Colors.white,
+            child: ListTile(
+              leading: Text(_data[index][0].toString()),
+              title: Text(_data[index][1]
+              ),
+              trailing: Text(_data[index][2]),
+            ),
+          );
+        },
+      ),
+
+
+      extendBody: true,
+      bottomNavigationBar: const BottomNavBarRaisedInsetFb1(),
     );
   }
 }
@@ -43,6 +96,8 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
 
         title : const Center (child : Text ('Bip Boup')),
+
+
       ),
       body: const Center(child: Text("placeholder"),),
 
@@ -50,6 +105,7 @@ class HomeScreen extends StatelessWidget {
       bottomNavigationBar: const BottomNavBarRaisedInsetFb1(),
 
     );
+
 
   }
 }
@@ -59,6 +115,28 @@ class BottomNavBarRaisedInsetFb1 extends StatefulWidget {
 
   @override
   _BottomNavBarRaisedInsetFb1State createState() => _BottomNavBarRaisedInsetFb1State();
+}
+
+class Screen2 extends StatefulWidget {
+  @override
+  _Screen2State createState() => _Screen2State();
+}
+class _Screen2State extends State<Screen2> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text('Page 2'),
+          backgroundColor: Colors.blueAccent),
+      body: Center(
+        child: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MyHomePage()));
+        }
+        ),
+      ),
+    );
+  }
 }
 
 class _BottomNavBarRaisedInsetFb1State extends State<BottomNavBarRaisedInsetFb1> {
@@ -87,7 +165,7 @@ class _BottomNavBarRaisedInsetFb1State extends State<BottomNavBarRaisedInsetFb1>
     Size size = MediaQuery.of(context).size;
     double height = 56;
 
-    final primaryColor = Colors.deepOrange;
+    final primaryColor = Color.fromARGB(255, 255, 23, 33);
     final secondaryColor = Colors.black54;
     final accentColor = const Color(0xffffffff);
     final backgroundColor = Colors.white;
@@ -120,15 +198,17 @@ class _BottomNavBarRaisedInsetFb1State extends State<BottomNavBarRaisedInsetFb1>
                 NavBarIcon(
                   text: "Home",
                   icon: Icons.home_outlined,
-                  selected: true,
-                  onPressed: () {},
+                  selected: false,
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>Screen2()));
+                  },
                   defaultColor: secondaryColor,
                   selectedColor: primaryColor,
                 ),
                 NavBarIcon(
                   text: "Search",
                   icon: Icons.search_outlined,
-                  selected: false,
+                  selected: true,
                   onPressed: () {},
                   defaultColor: secondaryColor,
                   selectedColor: primaryColor,

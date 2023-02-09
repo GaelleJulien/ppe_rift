@@ -1,9 +1,12 @@
+import 'dart:collection';
 import 'dart:io';
+import 'package:csv/csv.dart';
 
 import 'package:flutter/material.dart';
 import 'package:ppe_rift_test/screens/home_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:gtfs_realtime_bindings/gtfs_realtime_bindings.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 
 
@@ -11,6 +14,7 @@ import 'package:gtfs_realtime_bindings/gtfs_realtime_bindings.dart';
 void main()  {
 
   runApp(const MyApp());
+
 }
 
 Future<String> getData() async {
@@ -25,11 +29,14 @@ Future<String> getData() async {
 
 }
 
+
+
 String getDataString(){
   String dataString = getData() as String;
   print (dataString);
   return dataString;
 }
+
 
 
 class MyApp extends StatelessWidget {
@@ -42,7 +49,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'PPE RIFT',
       theme : ThemeData(
-        primarySwatch: Colors.deepOrange
+        primarySwatch: Colors.red
       ),
       home: MyHomePage (),
     );
